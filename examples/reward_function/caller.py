@@ -22,7 +22,7 @@ import random
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-STORAGE_PATH = os.getenv("STORAGE_PATH","/apdcephfs_sh2/share_300000800/user/chengchuang")
+STORAGE_PATH = os.getenv("STORAGE_PATH")
 
 def generate_temp_filename(prefix="temp", suffix=".json"):
     timestamp = int(time.time() * 1000) 

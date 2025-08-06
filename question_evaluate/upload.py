@@ -5,7 +5,7 @@ from huggingface_hub import login
 import argparse
 import json
 import os
-STORAGE_PATH = os.getenv("STORAGE_PATH","/apdcephfs_sh2/share_300000800/user/chengchuang")
+STORAGE_PATH = os.getenv("STORAGE_PATH")
 print(STORAGE_PATH)
 with open('tokens.json', 'r') as f:
     token = json.load(f)['huggingface']

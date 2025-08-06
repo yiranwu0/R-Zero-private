@@ -14,7 +14,7 @@ parser.add_argument("--num_samples", type=int, default=9)
 parser.add_argument("--suffix", type=str, default="77")
 parser.add_argument("--save_name", type=str, default="")
 args = parser.parse_args()
-STORAGE_PATH = os.getenv("STORAGE_PATH","/apdcephfs_sh2/share_300000800/user/chengchuang")
+STORAGE_PATH = os.getenv("STORAGE_PATH")
 print('start load')
 with open(f"{STORAGE_PATH}/generated_question/{args.save_name}_{args.suffix}.json", "r") as f:
     data = json.load(f)
