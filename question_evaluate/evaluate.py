@@ -10,7 +10,7 @@ import os
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default="Qwen/Qwen3-4B-Base")
-parser.add_argument("--num_samples", type=int, default=9)
+parser.add_argument("--num_samples", type=int, default=10)
 parser.add_argument("--suffix", type=str, default="77")
 parser.add_argument("--save_name", type=str, default="")
 args = parser.parse_args()

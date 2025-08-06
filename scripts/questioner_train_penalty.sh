@@ -23,7 +23,6 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python3 -m verl.trainer.main \
     worker.actor.model.model_path=$questioner_model_path \
     trainer.experiment_name=$save_path \
     trainer.save_checkpoint_path=${STORAGE_PATH}/models/$save_path \
-    data.train_files=HINT-lab/Qwen_Qwen3-4B-Base_v1@train \
     trainer.total_epochs=1000 \
     worker.reward.reward_function=./examples/reward_function/caller_penalty.py:compute_score \
     trainer.val_freq=-1 \

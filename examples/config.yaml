@@ -1,6 +1,6 @@
 data:
   train_files: hiyouga/math12k@train
-  val_files: HINT-lab/math_test
+  val_files: hiyouga/math12k@test
   prompt_key: problem
   answer_key: answer
   image_key: images

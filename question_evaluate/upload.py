@@ -6,6 +6,7 @@ import argparse
 import json
 import os
 STORAGE_PATH = os.getenv("STORAGE_PATH")
+HUGGINGFACENAME = os.getenv("HUGGINGFACENAME")
 print(STORAGE_PATH)
 with open('tokens.json', 'r') as f:
     token = json.load(f)['huggingface']
@@ -49,7 +50,7 @@ if not args.repo_name == "":
     dataset_dict = {"train": train_dataset}
     config_name = f"{args.experiment_name}"
     dataset = DatasetDict(dataset_dict)
-    dataset.push_to_hub(f"HINT-lab/{args.repo_name}",private=True,config_name=config_name)
+    dataset.push_to_hub(f"{HUGGINGFACENAME}/{args.repo_name}",private=True,config_name=config_name)
 
 
 
