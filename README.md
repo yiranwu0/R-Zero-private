@@ -19,7 +19,7 @@ This process creates a perfectly tailored, adaptive curriculum. The Challenger l
 ### Key Features
 * **Fully Autonomous:** Starts from zero external data. No need for pre-existing problem sets or human-annotated solutions.
 * **Co-Evolutionary Loop:** A unique Challenger-Solver dynamic creates a targeted, adaptive curriculum for continuous improvement.
-* **Proven Performance:** Delivers significant performance boosts on complex reasoning benchmarks.
+* **Proven Performance:** Delivers significant performance boosts on several reasoning benchmarks.
 * **Strong Generalization:** Reasoning skills learned on specific domains (like math) successfully transfer to general reasoning tasks.
 * **Model-Agnostic:** Consistently improves the performance of various backbone LLMs.
 
@@ -28,7 +28,7 @@ This process creates a perfectly tailored, adaptive curriculum. The Challenger l
 ## ⚡️ Quickstart Guide
 
 Getting started is easy! Just follow these steps.
-### 1. Configure Environment
+### 1. Configure Environment and Prepare Dirs
 ```bash
 git clone https://github.com/Chengsong-Huang/R-Zero.git
 
@@ -40,8 +40,13 @@ pip install -r requirements.txt
 # This is a large directory where checkpoints and generated data will be saved.
 export STORAGE_PATH="/path/to/your/storage"
 export HUGGINGFACENAME="yourhuggingfacename"
-```
 
+mkdir -p \
+  "$STORAGE_PATH/evaluation" \
+  "$STORAGE_PATH/models" \
+  "$STORAGE_PATH/generated_question" \
+  "$STORAGE_PATH/temp_results"
+```
 ### 2. Add API Keys
 
 You'll need to add a few API keys to run the experiments:
@@ -114,7 +119,7 @@ The table below compares the performance of the Base Model, a Zero-Shot Challeng
 
 ## 🙏 Acknowledgements
 
-Our framework is directly based on the great work of [**EasyR1**](https://github.com/hiyouga/EasyR1/tree/main), implementing all of its core functionalities. Additionally, our evaluation process heavily referenced the work from [**General-Reasoner**](https://github.com/TIGER-AI-Lab/General-Reasoner). We are very grateful for their excellent work. We would also like to thank all collaborators.
+Our framework is directly based on the great work of [**EasyR1**](https://github.com/hiyouga/EasyR1/tree/main), implementing all of its core functionalities. Additionally, our evaluation process referenced the work from [**General-Reasoner**](https://github.com/TIGER-AI-Lab/General-Reasoner). We are very grateful for their excellent work.
 
 ## 💬 Citation
 If our work is useful for you, please consider citing our paper:

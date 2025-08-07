@@ -66,12 +66,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     tokenizer = AutoTokenizer.from_pretrained(args.model_path)
-    # try:
-    #     llm = LLM(model=args.model_path, tensor_parallel_size=8,gpu_memory_utilization=0.85)
-    # except Exception as e:
-    #     print(e)
     llm = LLM(model=args.model_path, tensor_parallel_size=4,gpu_memory_utilization=0.85)
-    # print(f'Using {llm.model_name} with {llm.tensor_parallel_size} GPUs')
     print('start loading dataset')
     dataset = datasets.load_dataset('m-a-p/SuperGPQA')
     categories = ['Engineering', 'Medicine', 'Science', 'Philosophy', 'Military Science', 'Economics', 'Management', 'Sociology', 'Literature and Arts', 'History', 'Agronomy', 'Law', 'Education']

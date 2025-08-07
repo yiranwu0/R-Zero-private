@@ -132,13 +132,11 @@ if __name__ == "__main__":
         category_accuracy_report[category] = accuracy
         print(f"{category}: {correct}/{total} -> {accuracy*100:.2f}% accuracy")
         
-    # Micro average accuracy: overall correct over all predictions.
     total_predictions = success + fail
     micro_avg = success / total_predictions if total_predictions > 0 else 0.0
     print(f"\nMicro Average Accuracy: {micro_avg*100:.2f}%")
     with open('final_results.jsonl', 'a') as f:
         json.dump({"dataset": "mmlupro", "model": args.model_path, "accuracy": round(micro_avg*100, 2)}, f, indent=2)
-    # Macro average accuracy: average of the per-category accuracies.
     valid_categories = [cat for cat in categories if (per_category_accuracy[cat][0] + per_category_accuracy[cat][1] > 0)]
     if valid_categories:
         macro_avg = sum(category_accuracy_report[cat] for cat in valid_categories) / len(valid_categories)

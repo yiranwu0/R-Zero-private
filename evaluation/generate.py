@@ -4,7 +4,6 @@ import  evaluation.datasets_loader as datasets_loader
 from transformers import AutoTokenizer
 import json
 import os
-# import wandb
 
 STORAGE_PATH = os.getenv("STORAGE_PATH")
 
@@ -13,8 +12,6 @@ def main(args):
     print(STORAGE_PATH)
     with open('tokens.json','r') as f: 
         tokens = json.load(f)
-    # wandb.login(key=tokens["wandb"])
-    # wandb.init(project="results", name=f"{args.model}_{args.dataset}",config=args)
     print(args.model, args.dataset)
     tokenizer = AutoTokenizer.from_pretrained(args.model)
     model = vllm.LLM(
