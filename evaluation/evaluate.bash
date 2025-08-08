@@ -67,20 +67,13 @@ for MODEL_NAME in "${MODEL_NAMES[@]}"; do
     done
 done
 
-
-
-# cd ../EasyR1
 python evaluation/results_recheck.py --model_name $model_name &
 
-# python gpu_burn.py &
-
-CUDA_VISIBLE_DEVICES=0,1,2,3 python evaluation/eval_supergpqa.py --model_path $model_name
-
-CUDA_VISIBLE_DEVICES=0,1,2,3 python evaluation/eval_bbeh.py --model_path $model_name
-CUDA_VISIBLE_DEVICES=0,1,2,3 python evaluation/eval_mmlupro.py --model_path $model_name
+python evaluation/eval_supergpqa.py --model_path $model_name
+python evaluation/eval_bbeh.py --model_path $model_name
+python evaluation/eval_mmlupro.py --model_path $model_name
 
 
 python evaluation/test.py --model_name $model_name
 
 echo "==> All tasks have finished!"
-# pkill -f "python gpu_burn.py"

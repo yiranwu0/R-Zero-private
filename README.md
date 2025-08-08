@@ -2,12 +2,13 @@
 
 > Teach Large Language Models to reason and evolve on their own, starting with nothing but a base model. No data required.
 
+Check  out our [paper](https://arxiv.org/abs/2508.05004) or [webpage](https://chengsong-huang.github.io/R-Zero.github.io/)  for the details
 
 ## 🏴󠁶󠁵󠁭󠁡󠁰󠁿 Overview
 
 ![](./figs/abstract.png)
 
-Training powerful reasoning models traditionally requires massive, human-curated datasets, which are expensive and hard to scale. **R-Zero** is a novel framework that enables LLMs to improve their reasoning abilities autonomously, without needing *any* pre-existing tasks or labels. It's a truly self-evolving system that learns from scratch.
+Training powerful reasoning models traditionally requires massive, human-curated datasets, which are expensive and hard to scale. [**R-Zero**](https://arxiv.org/abs/2508.05004) is a novel framework that enables LLMs to improve their reasoning abilities autonomously, without needing *any* pre-existing tasks or labels. It's a truly self-evolving system that learns from scratch.
 
 At its core, R-Zero sets up a dynamic co-evolutionary loop between two instances of the same base model:
 
@@ -124,4 +125,13 @@ Our framework is directly based on the great work of [**EasyR1**](https://github
 ## 💬 Citation
 If our work is useful for you, please consider citing our paper:
 ```
+@misc{huang2025rzeroselfevolvingreasoningllm,
+      title={R-Zero: Self-Evolving Reasoning LLM from Zero Data}, 
+      author={Chengsong Huang and Wenhao Yu and Xiaoyang Wang and Hongming Zhang and Zongxia Li and Ruosen Li and Jiaxin Huang and Haitao Mi and Dong Yu},
+      year={2025},
+      eprint={2508.05004},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2508.05004}, 
+}
 ```

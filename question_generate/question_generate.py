@@ -10,18 +10,6 @@ import regex as re
 import os
 STORAGE_PATH = os.getenv("STORAGE_PATH")
 
-
-
-def pad_2d_list_to_length(lst, pad_token_id, max_length):
-    # Convert list to tensor and pad to max_length
-    try:
-        return torch.tensor([row + [pad_token_id] * (max_length - len(row)) for row in lst])
-    except:
-        # print(lst)
-        print(max_length)
-        print(pad_token_id)
-        exit()
-
 def extract_boxed(text):
     results, i = [], 0
     prefix = r'\boxed{'
@@ -41,14 +29,12 @@ def extract_boxed(text):
                 depth -= 1
             j += 1
 
-        # `j-1` is the closing brace that balanced depth to 0
         results.append(text[start + plen : j - 1])
-        i = j      # continue search after this match
+        i = j
 
     return results
 
 def get_response_mask(response_ids, eos_token_id, dtype):
-    # Create attention mask for response
     batch_size, seq_len = response_ids.shape
     mask = torch.ones((batch_size, seq_len), dtype=dtype)
     for i in range(batch_size):
@@ -59,7 +45,6 @@ def get_response_mask(response_ids, eos_token_id, dtype):
     return mask
 
 def main(args):
-    # Initialize model and tokenizer
     tokenizer = AutoTokenizer.from_pretrained(args.model)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -75,8 +60,6 @@ def main(args):
     questions, answers = dataset_handler.load_data()
     question = questions[0]
     answer = answers[0]
-    # Sample problem
-    # question = "What is 2 + 2?"
     chat = [
         {
             "role": "system",
@@ -104,7 +87,6 @@ def main(args):
         }
     ]
 
-    # Prepare prompt
     if tokenizer.chat_template:
         prompt = tokenizer.apply_chat_template(
             chat, 
@@ -114,21 +96,15 @@ def main(args):
         )
     else:
         prompt = "system: " + chat[0]["content"] + '\n' + "user: " + chat[1]["content"]
-    # Set sampling parameters for multiple samples
     sample_params = vllm.SamplingParams(
         max_tokens=4096,
         temperature=1.0,
         top_p=0.95,
-        # top_k=100,
-        n=1,  # Number of samples to generate
+        n=1,
         stop_token_ids=[tokenizer.eos_token_id],
     )
 
-    # Generate multiple completions
     completions: List[RequestOutput] = model.generate([prompt]*args.num_samples, sampling_params=sample_params)
-    # print(completions)
-    # save the text into a file
-    # print(completions)
     results=[]
     for completion in completions:
         response = completion.outputs[0].text
@@ -146,8 +122,6 @@ def main(args):
             results.append({"question": response, "answer": "", "score": -1})
     with open(f"{STORAGE_PATH}/generated_question/{args.save_name}_{args.suffix}.json", "w") as f:
         json.dump(results, f, indent=4)
-    # exit()
-    # Process input
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
