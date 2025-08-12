@@ -125,7 +125,7 @@ Our framework is directly based on the great work of [**EasyR1**](https://github
 ## 💬 Citation
 If our work is useful for you, please consider citing our paper:
 ```
-@misc{huang2025rzeroselfevolvingreasoningllm,
+@article{huang2025rzeroselfevolvingreasoningllm,
       title={R-Zero: Self-Evolving Reasoning LLM from Zero Data}, 
       author={Chengsong Huang and Wenhao Yu and Xiaoyang Wang and Hongming Zhang and Zongxia Li and Ruosen Li and Jiaxin Huang and Haitao Mi and Dong Yu},
       year={2025},
