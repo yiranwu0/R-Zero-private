@@ -6,15 +6,20 @@ import re
 from evaluation.datasets_loader import get_dataset_handler
 from mathruler.grader import extract_boxed_content, grade_answer
 import os
+import timeout_decorator
 # math_verify = get_dataset_handler("math")
+
+@timeout_decorator.timeout(10, timeout_exception=TimeoutError)
+def new_grade_answer(result, existing_answer):
+    return grade_answer(result, existing_answer)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--model", type=str, default="Qwen/Qwen3-4B-Base")
-parser.add_argument("--num_samples", type=int, default=10)
+parser.add_argument("--num_samples", type=int, default=9)
 parser.add_argument("--suffix", type=str, default="77")
 parser.add_argument("--save_name", type=str, default="")
 args = parser.parse_args()
-STORAGE_PATH = os.getenv("STORAGE_PATH")
+STORAGE_PATH = os.getenv("STORAGE_PATH","/apdcephfs_sh2/share_300000800/user/chengchuang")
 print('start load')
 with open(f"{STORAGE_PATH}/generated_question/{args.save_name}_{args.suffix}.json", "r") as f:
     data = json.load(f)
@@ -66,11 +71,13 @@ for response, answer, question in zip(responses, answers, questions):
             # Check if result matches any existing answer group
             try:
                 for existing_answer in answer_counts:
-                    if grade_answer(result, existing_answer) or grade_answer(existing_answer, result) or result == existing_answer or ('no ' in result.lower() and 'no ' in existing_answer.lower()):
+                    if new_grade_answer(result, existing_answer) or new_grade_answer(existing_answer, result) or result == existing_answer or ('no ' in result.lower() and 'no ' in existing_answer.lower()):
                         answer_counts[existing_answer] += 1
                         found_match = True
                         break
-            except:
+            except TimeoutError:
+                continue
+            except Exception as e:
                 error_flag = True
                 break
             # If no match found, create new answer group
