@@ -1,18 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-'''
-Refactored Version: This script employs the 'timeout-decorator' library to apply fine-grained timeout control 
-directly to the `grade_answer` function. This approach is more robust than setting a global timeout for the 
-entire post-processing step, as it prevents the loss of an entire question's result due to a single, 
-faulty comparison.
-
-Setup Instructions:
-    # 1. Install the required library
-    pip install timeout-decorator
-
-    # 2. Run the server
-    python your_server_file_name.py --port 5000 --model_path Qwen/Qwen3-4B-Base
-'''
 
 from flask import Flask, request, jsonify
 import vllm
@@ -23,21 +8,16 @@ import threading
 import time
 import torch
 from transformers import AutoTokenizer
+from evaluation.datasets_loader import get_dataset_handler
 from mathruler.grader import extract_boxed_content, grade_answer
-import timeout_decorator  # 1. Import the timeout-decorator library
 
-# ------------------------- Command-Line Arguments ------------------------- #
-# (This section remains unchanged)
 parser = argparse.ArgumentParser()
 parser.add_argument('--port', type=str, default='5000')
 parser.add_argument('--model_path', type=str, default='Qwen/Qwen3-4B-Base')
-parser.add_argument('--gpu_mem_util', type=float, default=0.8,
-                    help='The maximum GPU memory utilization fraction for vLLM.')
+parser.add_argument('--gpu_mem_util', type=float, default=0.8)
 args = parser.parse_args()
 
-# ------------------------- vLLM Initialization ------------------------ #
-# (This section remains unchanged)
-print('[init] Loading model...')
+print('[init] loading model …')
 
 tokenizer = AutoTokenizer.from_pretrained(args.model_path)
 model = vllm.LLM(
@@ -52,71 +32,73 @@ sample_params = vllm.SamplingParams(
     top_p=1.0,
     top_k=40,
     stop_token_ids=[tokenizer.eos_token_id],
-    n=10, # Generate 10 candidate answers for each question
+    n=10,
 )
 
-# ---------------------- GPU Idle Utilization Thread ---------------------- #
-# (This section remains unchanged)
-stop_event = threading.Event()    # Event to stop the thread globally
-pause_event = threading.Event()   # Event to pause the thread during requests
+stop_event = threading.Event()    # 程序整体退出
+pause_event = threading.Event()   # 请求期间暂停
 
 def gpu_idle_worker():
-    '''
-    This worker occupies the GPU with a continuous matrix multiplication loop when idle,
-    preventing potential performance drops from GPU power state changes.
-    '''
-    print('[idle_worker] GPU idle worker started.')
+    print('[idle_worker] started.')
     running = True
     while not stop_event.is_set():
         if pause_event.is_set():
             if running:
-                print('[idle_worker] Paused.')
+                print('[idle_worker] paused.')
                 running = False
-            time.sleep(0.1) # Sleep briefly while paused
+            time.sleep(0.1)
             continue
         else:
             if not running:
-                print('[idle_worker] Resumed.')
+                print('[idle_worker] resumed.')
                 running = True
         try:
-            # A simple but effective way to keep the GPU busy
             a = torch.rand((2000, 2000), dtype=torch.float32, device='cuda')
             b = torch.rand((2000, 2000), dtype=torch.float32, device='cuda')
             torch.matmul(a, b)
             torch.cuda.synchronize()
         except RuntimeError as e:
-            print(f'[idle_worker] Caught a RuntimeError: {e}. Sleeping for 1s...')
+            print(f'[idle_worker] RuntimeError: {e}. Sleeping 1s …')
             time.sleep(1)
-    print('[idle_worker] GPU idle worker stopped.')
+    print('[idle_worker] stopped.')
 
 idle_thread = threading.Thread(target=gpu_idle_worker, daemon=True)
 idle_thread.start()
 
-# ------------------------ Timeout Utility (Refactored) --------------------------- #
-# 2. Instead of a custom timeout function, we now wrap `grade_answer` with a decorator.
-@timeout_decorator.timeout(10, timeout_exception=TimeoutError)
-def grade_answer_with_timeout(res1, res2):
-    """
-    This wrapper applies a 2-second timeout to each individual `grade_answer` call.
-    If the function's execution exceeds 2 seconds, it will raise a `TimeoutError`.
-    """
-    return grade_answer(res1, res2)
+class TimeoutException(Exception):
+    pass
 
-# ---------------------------- Flask Application --------------------------- #
+def run_with_timeout(func, timeout_sec: int, *args, **kwargs):
+    result_holder = {}
+    error_holder = {}
+
+    def _target():
+        try:
+            result_holder['value'] = func(*args, **kwargs)
+        except Exception as e:
+            error_holder['error'] = e
+
+    t = threading.Thread(target=_target, daemon=True)
+    t.start()
+    t.join(timeout_sec)
+
+    if t.is_alive():
+        raise TimeoutException()
+    if 'error' in error_holder:
+        raise error_holder['error']
+    return result_holder.get('value')
+
 app = Flask(__name__)
 
 @app.route('/hello', methods=['GET'])
 def hello():
-    '''The main processing endpoint: reads a task file, invokes vLLM, consolidates answers, and writes results.'''
 
-    # --- Pause the GPU idle worker to free up resources ---
     pause_event.set()
     torch.cuda.synchronize()
 
     name = request.args.get('name', 'None')
-    print(f'[server] Received request for task file: {name}')
+    print(f'[server] received {name}')
 
-    # ---------- Load Data ----------
     with open(name, 'r') as f:
         data = json.load(f)
     os.remove(name)
@@ -124,7 +106,6 @@ def hello():
     questions = [item.get('question', '') for item in data]
     answers   = [item.get('answer',   '') for item in data]
 
-    # (Data preparation logic remains unchanged)
     valid_indices, valid_questions, valid_answers, valid_chats = [], [], [], []
     for i, (q, a) in enumerate(zip(questions, answers)):
         if q and a:
@@ -135,10 +116,8 @@ def hello():
                 {'role': 'system', 'content': 'Please reason step by step, and put your final answer within \\boxed{}.'},
                 {'role': 'user',   'content': q}
             ])
-    print('[server] Valid chat prompts have been prepared.')
+    print('[server] valid_chats prepared.')
 
-    # ---------- vLLM Generation ----------
-    # (vLLM generation logic remains unchanged)
     if valid_chats:
         if tokenizer.chat_template:
             prompts = [
@@ -154,50 +133,30 @@ def hello():
         responses = model.generate(prompts, sampling_params=sample_params, use_tqdm=True)
     else:
         responses = []
-    print('[server] Generation completed.')
+    print('[server] generation completed.')
 
-    # ---------- Results Post-Processing (Core Refactoring Here) ----------
     def process_single(question, golden_answer, response):
-        '''Consolidates and grades vLLM outputs for a single question, returning a result dictionary.'''
         results = [extract_boxed_content(out.text) for out in response.outputs]
-        print(f"[process_single] Processing question: '{question[:70]}...'")
 
         answer_counts = {}
         for res in results:
-            if not res: continue # Skip empty results
             matched = False
-            
-            # 3. This inner loop now handles timeouts for each individual comparison.
             for exist_ans in list(answer_counts.keys()):
                 try:
-                    # Use the new timeout-wrapped function for the comparison logic.
-                    if (res == exist_ans or 
-                        ('no ' in res.lower() and 'no ' in exist_ans.lower()) or
-                        grade_answer_with_timeout(res, exist_ans) or 
-                        grade_answer_with_timeout(exist_ans, res)):
+                    if (grade_answer(res, exist_ans) or grade_answer(exist_ans, res)
+                        or res == exist_ans
+                        or ('no ' in res.lower() and 'no ' in exist_ans.lower())):
                         answer_counts[exist_ans] += 1
                         matched = True
-                        break # Match found, break from the inner loop
-                        
-                except TimeoutError:
-                    # If a single comparison times out, log it and gracefully continue.
-                    print(f"      [grader] TIMEOUT comparing '{res[:30]}...' with '{exist_ans[:30]}...'. Skipping this pair.")
-                    continue # Continue to the next comparison
-                except Exception as e:
-                    # Catch any other potential errors from the grader function.
-                    print(f"      [grader] ERROR comparing '{res[:30]}...' with '{exist_ans[:30]}...': {e}. Skipping.")
+                        break
+                except Exception:
                     continue
-            
             if not matched:
                 answer_counts[res] = 1
 
-        if not answer_counts:
-            majority_ans, max_count = '', 0
-        else:
-            majority_ans = max(answer_counts, key=answer_counts.get)
-            max_count = answer_counts[majority_ans]
-
-        score = max_count / len(results) if results else 0.0
+        max_count    = max(answer_counts.values()) if answer_counts else 0
+        majority_ans = max(answer_counts, key=answer_counts.get) if answer_counts else ''
+        score        = max_count / len(results) if results else 0.0
 
         return {
             'question': question,
@@ -213,40 +172,38 @@ def hello():
             if q and a:
                 response = responses[response_idx]
                 response_idx += 1
-                # 4. Directly call `process_single`. The complex timeout logic is now handled internally.
-                item = process_single(q, a, response)
+                item = run_with_timeout(process_single, 10, q, a, response)
                 results_all.append(item)
             else:
                 results_all.append({'question': q, 'answer': a, 'score': -1, 'results': []})
-        except Exception as e:
-            # 5. Catch any other unexpected exceptions from within process_single.
-            print(f'[server] CRITICAL: An unhandled error occurred while processing question: {q}')
-            print(f'[server] Error details: {e}')
+        except TimeoutException:
+            print(f'[server] timeout: {q}')
+            print(f'[server] timeout: {a}')
             results_all.append({
                 'question': q,
                 'answer':   a,
                 'score':    -1,
                 'results':  [],
-                'error':    f'unhandled exception in process_single: {str(e)}'
+                'error':    'timeout'
             })
-    print('[server] All results have been processed.')
+        except Exception as e:
+            print(f'[server] error: {e}')
+            results_all.append({'question': q, 'answer': a, 'score': -1, 'results': []})
+    print('[server] results_all completed.')
 
     out_path = name.replace('.json', '_results.json')
     with open(out_path, 'w') as f:
         json.dump(results_all, f, indent=4)
 
-    # --- Resume the GPU idle worker ---
     pause_event.clear()
-    print(f'[server] Processed {name}, results saved to {out_path}. Resuming idle worker.')
+    time.sleep(10)
+    print(f'[server] processed {name}, results saved to {out_path}.')
     return jsonify({'message': f'Processed {name}, results saved to {out_path}.'})
 
-# ------------------------- Main Application Entrypoint --------------------------- #
-# (This section remains unchanged)
 if __name__ == '__main__':
     try:
         app.run(host='127.0.0.1', port=int(args.port), threaded=True)
     finally:
-        # Gracefully shut down the background thread on exit
         stop_event.set()
         idle_thread.join()
-        print('[main] Application shutdown complete.')
+        print('[main] shutdown completed.')
