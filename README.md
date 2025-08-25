@@ -6,7 +6,7 @@ Check  out our [paper](https://arxiv.org/abs/2508.05004) or [webpage](https://ch
 
 ## 🔥 Updates
 
-<!-- - [2025-8-12] Update codes to make training more smooth. -->
+- [2025-8-25] Update codes to make training more smooth (by stopit).
 
 - [2025-8-8] R-Zero got `#2 Paper of the day` in [huggingface daily paper](https://huggingface.co/papers/2508.05004).
 
@@ -126,7 +126,7 @@ The table below compares the performance of the Base Model, a Zero-Shot Challeng
 ### **Q: What if the code gets stuck during the questioner training process?**
 
 **A:** This is likely due to a strange bug in the `math_verify` lib, which can cause an infinite loop when processing certain answers. We've added a timeout control to mitigate this, but it may not catch all cases. If you encounter this issue, please just restart the training from the last saved checkpoint.
->> I suddenly find there is a lib named `timeout_decorator` which can solve this problem after I complete most of the experiments...... (not sure whether it will introduce new problems.)
+<!-- >> I suddenly find there is a lib named `timeout_decorator` which can solve this problem after I complete most of the experiments...... (not sure whether it will introduce new problems.) -->
 
 
 ## 🙏 Acknowledgements
