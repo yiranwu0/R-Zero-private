@@ -28,7 +28,7 @@ def main(args):
     questions, answers = handler.load_data()
     chats=[[{"role": "system", "content": "Please reason step by step, and put your final answer within \\boxed{}."},{"role": "user", "content": question}] for question in questions]
     if tokenizer.chat_template:
-        prompts = [tokenizer.apply_chat_template(chat, tokenize=False,add_generation_prompt=True, add_special_tokens=True, enable_thinking=False) for chat in chats]
+        prompts = [tokenizer.apply_chat_template(chat, tokenize=False,add_generation_prompt=True, add_special_tokens=True) for chat in chats]
     else:
         prompts = ["system: " + chat[0]["content"] + '\n' + "user: " + chat[1]["content"] + '\nPlease reason step by step, and put your final answer within \\boxed{}.' for chat in chats]
     responses = model.generate(prompts, sampling_params=sample_params,use_tqdm=True)

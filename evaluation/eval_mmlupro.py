@@ -89,7 +89,7 @@ if __name__ == "__main__":
                 "content": query + '\nPlease reason step by step, and put your final answer option within \\boxed{}. Only put the option letter in the box, e.g. \\boxed{A}. There is only one correct answer.'
             }]
             if tokenizer.chat_template:
-                prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True, enable_thinking=False)
+                prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
             else:
                 prompt = "user: " + query + '\nPlease reason step by step, and put your final answer option within \\boxed{}. Only put the letter in the box, e.g. \\boxed{A}. There is only one correct answer.'
             prompts.append(prompt)
