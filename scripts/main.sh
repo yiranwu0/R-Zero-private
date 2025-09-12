@@ -21,4 +21,4 @@ for i in {2..5}; do
         ${Model_abbr}_solver_v${i}
 done
 
-bash evaluation/eval_math.sh $Base_model
+bash evaluation/evaluate.bash $Base_model
