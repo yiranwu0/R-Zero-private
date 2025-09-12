@@ -36,4 +36,4 @@ sleep 10
 
 echo "solver training finished"
 
-bash evaluation/eval_math.bash ${STORAGE_PATH}/models/${experiment_name}/global_step_15/actor/huggingface
+bash evaluation/evaluate.bash ${STORAGE_PATH}/models/${experiment_name}/global_step_15/actor/huggingface
