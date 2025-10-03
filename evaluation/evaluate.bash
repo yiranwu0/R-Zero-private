@@ -74,6 +74,4 @@ python evaluation/eval_bbeh.py --model_path $model_name
 python evaluation/eval_mmlupro.py --model_path $model_name
 
 
-python evaluation/test.py --model_name $model_name
-
 echo "==> All tasks have finished!"
