@@ -31,7 +31,7 @@ import stopit  # 1. Import the thread-safe 'stopit' library
 parser = argparse.ArgumentParser()
 parser.add_argument('--port', type=str, default='5000')
 parser.add_argument('--model_path', type=str, default='Qwen/Qwen3-4B-Base')
-parser.add_argument('--gpu_mem_util', type=float, default=0.8,
+parser.add_argument('--gpu_mem_util', type=float, default=0.9,
                     help='The maximum GPU memory utilization fraction for vLLM.')
 args = parser.parse_args()
 

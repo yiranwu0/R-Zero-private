@@ -4,6 +4,9 @@ from transformers import AutoTokenizer
 import argparse
 from typing import List
 from vllm.outputs import RequestOutput
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from evaluation.datasets_loader import get_dataset_handler
 import json
 import regex as re
@@ -53,7 +56,7 @@ def main(args):
     model = vllm.LLM(
         model=args.model,
         tokenizer=args.model,
-        # gpu_memory_utilization=0.8,
+        gpu_memory_utilization=0.95,
         seed=int(args.suffix),
     )
     dataset_handler = get_dataset_handler("math")

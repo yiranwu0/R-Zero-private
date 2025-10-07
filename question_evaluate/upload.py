@@ -8,9 +8,9 @@ import os
 STORAGE_PATH = os.getenv("STORAGE_PATH")
 HUGGINGFACENAME = os.getenv("HUGGINGFACENAME")
 print(STORAGE_PATH)
-with open('tokens.json', 'r') as f:
-    token = json.load(f)['huggingface']
-login(token=token)
+# with open('tokens.json', 'r') as f:
+#     token = json.load(f)['huggingface']
+# login(token=token)
 parser = argparse.ArgumentParser()
 parser.add_argument("--repo_name", type=str, default="")
 parser.add_argument("--max_score", type=float, default=0.7)
@@ -41,16 +41,24 @@ scores = [data['score'] for data in datas]
 import matplotlib.pyplot as plt
 plt.hist(scores, bins=11)
 plt.savefig('scores_distribution.png')
-
 #count the number  of score between 0.2 and 0.8 
 if not args.repo_name == "":
     filtered_datas = [{'problem':data['question'],'answer':data['answer'],'score':data['score']} for data in datas if data['score'] >= args.min_score and data['score'] <= args.max_score and data['answer'] != '' and data['answer']!= 'None']
     print(len(filtered_datas))
+    
+    # Create HuggingFace dataset and save locally as parquet for VERL training
     train_dataset = Dataset.from_list(filtered_datas)
-    dataset_dict = {"train": train_dataset}
-    config_name = f"{args.experiment_name}"
-    dataset = DatasetDict(dataset_dict)
-    dataset.push_to_hub(f"{HUGGINGFACENAME}/{args.repo_name}",private=True,config_name=config_name)
+    local_dataset_path = f'{STORAGE_PATH}/generated_question/{args.experiment_name}_filtered_dataset.parquet'
+    train_dataset.to_parquet(local_dataset_path)
+    print(f"Dataset saved locally as parquet to: {local_dataset_path}")
+    
+    # Also save as JSON for backup/inspection
+    local_json_path = f'{STORAGE_PATH}/generated_question/{args.experiment_name}_filtered_dataset.json'
+    with open(local_json_path, 'w') as f:
+        json.dump(filtered_datas, f, indent=2)
+    print(f"Dataset also saved as JSON to: {local_json_path}")
+    
+    print(f"Dataset ready with {len(filtered_datas)} samples. Skipping upload to hub.")
 
 
 
