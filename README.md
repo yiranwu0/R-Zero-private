@@ -50,8 +50,8 @@ cd R-Zero
 pip install -r requirements.txt
 # Set an environment variable for your storage path.
 # This is a large directory where checkpoints and generated data will be saved.
-export STORAGE_PATH="/path/to/your/storage"
-export HUGGINGFACENAME="yourhuggingfacename"
+export STORAGE_PATH="/home/zilongwang/R-Zero/storage"
+export HUGGINGFACENAME="kevinwyr"
 
 mkdir -p \
   "$STORAGE_PATH/evaluation" \

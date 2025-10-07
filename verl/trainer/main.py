@@ -123,7 +123,14 @@ def main():
                 "PYTHONUNBUFFERED": "1",
             }
         }
-        ray.init(runtime_env=runtime_env,num_cpus=16)
+        init_kwargs = {"runtime_env": runtime_env}
+        ray_address = os.environ.get("RAY_ADDRESS") or os.environ.get("RAY_HEAD")
+        if ray_address:
+            init_kwargs["address"] = ray_address
+        else:
+            init_kwargs["num_cpus"] = 16
+        # Avoid passing num_cpus/num_gpus when connecting to an existing cluster.
+        ray.init(**init_kwargs)
 
     runner = Runner.remote()
     ray.get(runner.run.remote(ppo_config))
