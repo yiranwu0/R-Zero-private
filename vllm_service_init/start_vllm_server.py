@@ -139,6 +139,7 @@ def hello():
             ])
     print('[server] Valid chat prompts have been prepared.')
 
+    start_time = time.time()
     # ---------- vLLM Generation ----------
     # (vLLM generation logic remains unchanged)
     if valid_chats:
@@ -153,10 +154,10 @@ def hello():
                 'system: ' + chat[0]['content'] + '\n' + 'user: ' + chat[1]['content']
                 for chat in valid_chats
             ]
-        responses = model.generate(prompts, sampling_params=sample_params, use_tqdm=True)
+        responses = model.generate(prompts, sampling_params=sample_params, use_tqdm=False)
     else:
         responses = []
-    print('[server] Generation completed.')
+    print(f'[server] Generation completed in {(time.time() - start_time)/60:.2f} minutes.')
 
     # ---------- Results Post-Processing (Core Refactoring & Optimization Here) ----------
     def process_single(question, golden_answer, response):
