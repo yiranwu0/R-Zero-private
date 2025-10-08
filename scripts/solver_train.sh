@@ -23,11 +23,11 @@ python3 -m verl.trainer.main \
     trainer.save_checkpoint_path=${STORAGE_PATH}/models/${experiment_name}/ \
     data.train_files=${STORAGE_PATH}/generated_question/${experiment_name}_filtered_dataset.parquet \
     trainer.total_epochs=100 \
-    trainer.max_steps=20 \
+    trainer.max_steps=15 \
     data.format_prompt=./examples/format_prompt/solver.jinja \
     trainer.val_freq=4 \
-    worker.actor.micro_batch_size_per_device_for_update=1 \
-    worker.actor.micro_batch_size_per_device_for_experience=1 \
+    worker.actor.micro_batch_size_per_device_for_update=4 \
+    worker.actor.micro_batch_size_per_device_for_experience=16 \
 
 echo "merging model"
 python scripts/model_merger.py --local_dir ${STORAGE_PATH}/models/${experiment_name}/global_step_15/actor

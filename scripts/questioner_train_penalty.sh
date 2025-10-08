@@ -30,9 +30,10 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python3 -m verl.trainer.main \
     data.format_prompt=./examples/format_prompt/questioner.jinja \
     worker.rollout.n=4 \
     worker.actor.global_batch_size=16 \
-    trainer.max_steps=6 \
-    trainer.save_freq=1
-
+    trainer.max_steps=5 \
+    trainer.save_freq=1 \
+    worker.actor.micro_batch_size_per_device_for_update=4 \
+    worker.actor.micro_batch_size_per_device_for_experience=16 \
 sleep 5
 
 # 合并模型
