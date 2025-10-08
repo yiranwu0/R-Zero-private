@@ -47,10 +47,15 @@ git clone https://github.com/Chengsong-Huang/R-Zero.git
 # Navigate into the new directory
 cd R-Zero
 # Install the required packages
-pip install -r requirements.txt
+uv venv
+source .venv/bin/activate
+uv pip install torch==2.7.0
+uv pip install flash_attn==2.7.4.post1  --no-build-isolation
+uv pip install nvitop
+uv pip install -r requirements.txt
 # Set an environment variable for your storage path.
 # This is a large directory where checkpoints and generated data will be saved.
-export STORAGE_PATH="/home/zilongwang/R-Zero/storage"
+export STORAGE_PATH="/home/zilongwang/R-Zero-private/storage"
 export HUGGINGFACENAME="kevinwyr"
 
 mkdir -p \
@@ -76,7 +81,7 @@ You can replicate all of our experimental results with a single script.
 # Format: bash scripts/main.sh [Base_Model_Name] [Abbreviation]
 
 # Example using Qwen/Qwen3-4B-Base:
-bash scripts/main.sh Qwen/Qwen3-4B-Base qwen3-4b
+bash scripts/main.sh Qwen/Qwen3-4B-Base qwen3-4b-quick
 ```
 
 ## 📊 Impressive Results
