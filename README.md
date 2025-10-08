@@ -43,7 +43,7 @@ Getting started is easy! Just follow these steps.
 ### 1. Configure Environment and Prepare Dirs
 ```bash
 git clone https://github.com/Chengsong-Huang/R-Zero.git
-
+# du -sh .[^.]* * 2>/dev/null
 # Navigate into the new directory
 cd R-Zero
 # Install the required packages
