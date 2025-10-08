@@ -4,7 +4,8 @@ import  evaluation.datasets_loader as datasets_loader
 from transformers import AutoTokenizer
 import json
 import os
-
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 STORAGE_PATH = os.getenv("STORAGE_PATH")
 
 def main(args):

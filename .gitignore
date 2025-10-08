@@ -4,3 +4,6 @@ __pycache__/
 *.out
 test.json
 *.pyc
+*.json
+*.parquet
+*/png
